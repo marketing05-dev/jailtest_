@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaltest Diagnostics - Apresentação Dinâmica</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --blue-dark: #051429;
+            --blue-navy: #092542;
+            --blue-brand: #00a8ff;
+            --blue-glow: rgba(0, 168, 255, 0.4);
+            --text-white: #ffffff;
+            --text-muted: #a0c4ff;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        /* SELETOR DE IDIOMAS */
+        .lang-switcher {
+            position: absolute;
+            top: 25px;
+            right: 80px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            padding: 5px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            transition: 0.3s;
+            opacity: 0.5;
+        }
+
+        .lang-btn.active {
+            background: var(--blue-brand);
+            opacity: 1;
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #030a14;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-white);
+            overflow: hidden;
+            background-image: radial-gradient(circle at 15% 50%, rgba(9, 37, 66, 0.6), transparent 50%), 
+                              radial-gradient(circle at 85% 30%, rgba(0, 168, 255, 0.15), transparent 50%);
+            background-size: 200% 200%;
+            animation: gradientBg 15s ease infinite;
+        }
+
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* CONTAINER DA APRESENTAÇÃO (FRAME SLIDE) */
+        .presentation-frame {
+            width: 1280px;
+            height: 720px;
+            background: linear-gradient(135deg, rgba(5,20,41,0.95) 0%, rgba(9,37,66,0.95) 100%);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px var(--blue-glow);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 168, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        /* CAPA DE FUNDO INTERATIVA */
+        #slide1-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(to bottom, rgba(5,20,41,0.4), rgba(5,20,41,0.9)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200');
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            z-index: 1;
+            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 90%);
+            mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 90%);
+        }
+
+        #slide1-bg.active {
+            opacity: 0.35; 
+            visibility: visible;
+        }
+
+        /* LINHAS ANIMADAS DE TECH BACKGROUND */
+        .animated-lines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(0,168,255,0.02) 60px, rgba(0,168,255,0.02) 61px);
+            opacity: 0.6;
+            z-index: 1;
+            animation: slideLines 25s linear infinite;
+        }
+
+        @keyframes slideLines {
+            from { background-position: 0 0; }
+            to { background-position: 600px 0; }
+        }
+
+        /* NAVEGAÇÃO LATERAL POR DOTS */
+        .navigation-dots {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .dot-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .dot-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-white);
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.4s ease;
+            background: var(--blue-brand);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .dot-wrapper:hover .dot-label, .dot-wrapper.active .dot-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .dot-wrapper.active .dot {
+            background: var(--blue-brand);
+            box-shadow: 0 0 20px var(--blue-brand);
+            transform: scale(1.6);
+        }
+
+        /* CORPO DOS SLIDES */
+        .slide {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            padding: 60px 100px 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 2;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ANIMAÇÃO EM CASCATA */
+        .slide.active .animate-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .slide.active .delay-1 { animation-delay: 0.1s; }
+        .slide.active .delay-2 { animation-delay: 0.3s; }
+        .slide.active .delay-3 { animation-delay: 0.5s; }
+        .slide.active .delay-4 { animation-delay: 0.7s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 38px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .section-header h2 span { color: var(--blue-brand); }
+
+        /* GRID DE ESTATÍSTICAS E CARDS */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 35px 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,168,255,0.15) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            transform: scale(0.5);
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--blue-brand);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px var(--blue-glow);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .action-card:hover::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .action-card .huge-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .action-card:hover .huge-number {
+            color: var(--blue-brand);
+            text-shadow: 0 0 15px var(--blue-glow);
+        }
+
+        .action-card i {
+            font-size: 40px;
+            color: var(--blue-brand);
+            margin-bottom: 20px;
+            transition: transform 0.5s ease;
+        }
+
+        .action-card:hover i { transform: scale(1.15); }
+        .action-card h3 { font-size: 18px; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase;}
+        .action-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+        .action-card span { display: inline-block; margin-top: 15px; color: var(--blue-brand); font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;}
+
+        /* LAYOUT DOUBLE COLS */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .image-box {
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 168, 255, 0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            height: 380px;
+            position: relative;
+            background: #06162b;
+            animation: floatImage 6s ease-in-out infinite;
+        }
+
+        @keyframes floatImage {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); box-shadow: 0 35px 60px rgba(0,0,0,0.6), 0 0 30px rgba(0,168,255,0.2); }
+        }
+
+        .image-box .mockup-content {
+            width: 100%; height: 100%;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* MINI INTERFACE SIMULATOR */
+        .software-window {
+            background: #0a2542;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            margin-bottom: 15px;
+        }
+        .window-header {
+            background: #051429;
+            padding: 8px 15px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .window-body {
+            padding: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .text-content h3 { font-size: 26px; margin-bottom: 20px; color: #fff; font-family: 'Orbitron', sans-serif;}
+        .text-content p { font-size: 15px; line-height: 1.8; color: var(--text-muted); margin-bottom: 20px; }
+
+        /* MODAIS INTERATIVOS */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 10, 20, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--blue-navy) 0%, var(--blue-dark) 100%);
+            border: 2px solid var(--blue-brand);
+            width: 750px;
+            border-radius: 20px;
+            padding: 45px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 50px var(--blue-glow);
+            transform: scale(0.8) translateY(50px);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+        .close-btn {
+            position: absolute;
+            top: 20px; right: 20px;
+            font-size: 26px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 10;
+        }
+
+        .close-btn:hover { color: var(--blue-brand); transform: rotate(90deg); }
+
+        /* CIRCLES COMPONENT (SOLUÇÕES LÍDERES) */
+        .solutions-panel {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+            border: none !important;
+            background: #040d1a !important;
+            padding: 60px 80px !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .circles-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .circle-item {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .circle-shape {
+            width: 90px;
+            height: 90px;
+            background: #fff;
+            color: var(--blue-dark);
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .circle-item:hover .circle-shape {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 30px var(--blue-glow);
+            background: var(--blue-brand);
+            color: #fff;
+        }
+
+        .circle-item:hover .circle-label {
+            color: #fff;
+        }
+
+        .circle-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            transition: color 0.3s ease;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="presentation-frame">
+        <div id="slide1-bg" class="active"></div>
+        
+        <div class="lang-switcher">
+            <button class="lang-btn active" onclick="setLanguage('pt')" id="btn-pt">PT</button>
+            <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+            <button class="lang-btn" onclick="setLanguage('es')" id="btn-es">ES</button>
+        </div>
+
+        <div class="animated-lines"></div>
+
+        <div class="navigation-dots">
+            <div class="dot-wrapper active" onclick="gotoSlide(1)"><span class="dot-label" data-i18n="nav-1">Início</span><div class="dot"></div></div>
+            <div class="dot-wrapper" onclick="gotoSlide(2)"><span class="dot-label" data-i18n="nav-2">Cobertura</span><div class="dot"></div></div>
+            <div class="dot-wrapper" onclick="gotoSlide(3)"><span class="dot-label" data-i18n="nav-3">Capacidade</span><div class="dot"></div></div>
+            <div class="dot-wrapper" onclick="gotoSlide(4)"><span class="dot-label" data-i18n="nav-4">Interface</span><div class="dot"></div></div>
+            <div class="dot-wrapper" onclick="gotoSlide(5)"><span class="dot-label" data-i18n="nav-5">Soluções</span><div class="dot"></div></div>
+        </div>
+
+        <section class="slide active" id="slide1" style="align-items: center; text-align: center; padding: 0;">
+            <h1 style="font-family: 'Orbitron', sans-serif; font-size: 64px; letter-spacing: -2px; font-weight: 800; margin-bottom: 5px;" class="animate-up delay-1">
+                •jal<span style="color: var(--blue-brand);">test</span>
+            </h1>
+            <p style="letter-spacing: 6px; font-size: 14px; color: var(--text-muted); font-weight: bold; margin-bottom: 40px;" class="animate-up delay-1">DIAGNOSTICS</p>
+            
+            <h2 style="font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 400; max-width: 600px; line-height: 1.6;" class="animate-up delay-2" data-i18n="s1-subtitle">
+                Tecnologia de diagnóstico multimarca líder para veículos comerciais e pesados.
+            </h2>
+            
+            <button onclick="gotoSlide(2)" style="margin-top: 40px; background: var(--blue-brand); color: #fff; border: none; padding: 16px 45px; font-size: 16px; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 10px 25px var(--blue-glow); transition: 0.3s;" class="animate-up delay-3">
+                <span data-i18n="s1-btn">EXPLORAR CONTEÚDO</span> <i class="fa-solid fa-arrow-right" style="margin-left: 10px;"></i>
+            </button>
+        </section>
+
+        <section class="slide" id="slide2">
+            <div class="section-header animate-up delay-1">
+                <h2><span data-i18n="s2-title-1">Amplitude de</span> <span data-i18n="s2-title-2">Cobertura</span></h2>
+            </div>
+            <div class="split-layout">
+                <div class="text-content animate-up delay-2">
+                    <p data-i18n="s2-desc">O ecossistema Jaltest oferece compatibilidade sem precedentes no mercado global de reparação pesada. Clique nos blocos para conferir os detalhes técnicos de aplicação.</p>
+                    <div style="margin-top: 30px; display: flex; gap: 20px;">
+                        <div style="background: rgba(0,168,255,0.06); border-left: 4px solid var(--blue-brand); padding: 15px 20px; border-radius: 4px;">
+                            <small style="color: var(--blue-brand); font-weight: bold; text-transform: uppercase; font-size: 11px;" data-i18n="s2-tag">Atualizações</small>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color:#fff;" data-i18n="s2-tag-desc">3 grandes pacotes de software homologados por ano.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cards-grid animate-up delay-3" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="action-card" onclick="openModal('mod-marcas')">
+                        <div class="huge-number">242</div>
+                        <h3 data-i18n="lbl-marcas">Marcas</h3>
+                        <p data-i18n="p-marcas">Fabricantes suportados mundialmente.</p>
+                        <span data-i18n="lbl-ver">Ver Detalhes +</span>
+                    </div>
+                    <div class="action-card" onclick="openModal('mod-modelos')">
+                        <div class="huge-number">6930</div>
+                        <h3 data-i18n="lbl-modelos">Modelos</h3>
+                        <p data-i18n="p-modelos">Configurações de veículos comerciais.</p>
+                        <span data-i18n="lbl-ver">Ver Detalhes +</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide" id="slide3">
+            <div class="section-header animate-up delay-1">
+                <h2><span data-i18n="s3-title-1">Capacidade</span> <span data-i18n="s3-title-2">Técnica</span></h2>
+            </div>
+            <div class="cards-grid animate-up delay-2">
+                <div class="action-card" onclick="openModal('mod-sistemas')">
+                    <div class="huge-number" style="font-size: 38px;">61302</div>
+                    <h3 data-i18n="lbl-sistemas">Sistemas</h3>
+                    <p data-i18n="p-sistemas">Eletrônicas embarcadas e centrais indexadas no banco.</p>
+                    <span data-i18n="lbl-ver">Ver Detalhes +</span>
+                </div>
+                <div class="action-card" onclick="openModal('mod-info')">
+                    <div class="huge-number" style="font-size: 38px;">39554</div>
+                    <h3 data-i18n="lbl-info">Informações</h3>
+                    <p data-i18n="p-info">Guias detalhados de manutenção técnica recomendada.</p>
+                    <span data-i18n="lbl-ver">Ver Detalhes +</span>
+                </div>
+                <div class="action-card" onclick="openModal('mod-esquemas')">
+                    <div class="huge-number" style="font-size: 38px;">50211</div>
+                    <h3 data-i18n="lbl-esquemas">Esquemas</h3>
+                    <p data-i18n="p-esquemas">Diagramas elétricos interativos e pin-outs de conectores.</p>
+                    <span data-i18n="lbl-ver">Ver Detalhes +</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide" id="slide4">
+            <div class="section-header animate-up delay-1">
+                <h2><span data-i18n="s4-title-1">Interface do</span> <span data-i18n="s4-title-2">Usuário</span></h2>
+            </div>
+            <div class="split-layout">
+                <div class="image-box animate-up delay-2">
+                    <img src="https://blogserlider.wordpress.com/wp-content/uploads/2026/05/telajal.gif" alt="Interface Jaltest" style="width:100%; height:100%; object-fit: cover;">
+                </div>
+                <div class="text-content animate-up delay-3">
+                    <h3 data-i18n="s4-h3">Navegação Fluida e Intuitiva</h3>
+                    <p data-i18n="s4-p">Desenvolvido por mecânicos para mecânicos. Exibição limpa de árvores de sistemas, identificação imediata de falhas e integração com dados de engenharia proprietária de forma rápida.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide" id="slide5" style="padding: 0;">
+            <div class="modal-content solutions-panel" style="background-image: linear-gradient(to bottom, rgba(4, 13, 26, 0.85), rgba(4, 13, 26, 0.95)), url('https://blogserlider.wordpress.com/wp-content/uploads/2026/05/jatest-slide.gif') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important;">
+                <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                    <h2 style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: #fff; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.9);" data-i18n="s5-h2">
+                        Soluções Técnicas e de Diagnóstico <span style="color: var(--blue-brand);">Líderes da Indústria</span>
+                    </h2>
+                    <p style="color: #fff; margin-top: 15px; font-size: 15px; font-weight: 600; text-shadow: 0 2px 8px rgba(0,0,0,0.9);" data-i18n="s5-p">A engenharia Cojali integrada para entregar a máxima performance operacional na oficina.</p>
+                </div>
+
+                <div class="circles-row">
+                    <div class="circle-item" onclick="openModal('info-jdiag')">
+                        <div class="circle-shape"><i class="fa-solid fa-laptop-code"></i></div>
+                        <div class="circle-label">Jaltest Diag</div>
+                    </div>
+                    <div class="circle-item" onclick="openModal('info-cobertura')">
+                        <div class="circle-shape"><i class="fa-solid fa-truck-matrix">🔌</i></div>
+                        <div class="circle-label" data-i18n="c-cob">Cobertura</div>
+                    </div>
+                    <div class="circle-item" onclick="openModal('info-software')">
+                        <div class="circle-shape"><i class="fa-solid fa-compact-disc">💻</i></div>
+                        <div class="circle-label">Software</div>
+                    </div>
+                    <div class="circle-item" onclick="openModal('info-hardware')">
+                        <div class="circle-shape"><i class="fa-solid fa-microchip">💾</i></div>
+                        <div class="circle-label">Hardware</div>
+                    </div>
+                    <div class="circle-item" onclick="openModal('info-servicos')">
+                        <div class="circle-shape"><i class="fa-solid fa-headset">✔️</i></div>
+                        <div class="circle-label" data-i18n="c-ser">Serviços</div>
+                    </div>
+                    <div class="circle-item" onclick="openModal('info-cojali')">
+                        <div class="circle-shape" style="background: var(--blue-brand); color: #fff; font-family: 'Orbitron'; font-size: 14px; font-weight: bold;">cojali</div>
+                        <div class="circle-label">Cojali</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="modal-overlay" id="mod-marcas">
+            <div class="modal-content" style="width: 1100px; max-height: 650px; overflow-y: auto;">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('mod-marcas')"></i>
+                <h3 style="color: var(--blue-brand); font-family: Orbitron; font-size: 26px; margin-bottom: 25px;" data-i18n="m-marcas-t">242 Marcas Globais</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 13px; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <div>AGRALE</div><div>ASHOK LEYLAND</div><div>ASKAM</div><div>ASTRA</div>
+                    <div>AVIA</div><div>BAIC</div><div>BEIBEN</div><div>BHARATBENZ</div>
+                    <div>BMC</div><div>BYD</div><div>C&C</div><div>CAMC</div>
+                    <div>CAPACITY</div><div>CATERPILLAR</div><div>CNHTC-SINOTRUK</div><div>DAF</div>
+                    <div>DAYUN</div><div>DENNIS EAGLE</div><div>DFLZ</div><div>DONGFENG</div>
+                    <div>EICHER</div><div>ERF</div><div>FAW</div><div>FODEN</div>
+                    <div>FORD</div><div>FOTON</div><div>FREIGHTLINER</div><div>GAZ</div>
+                    <div>HINO</div><div>HINO JAPAN</div><div>HYUNDAI</div><div>INTERNATIONAL</div>
+                    <div>ISUZU</div><div>ISUZU JAPAN</div><div>IVECO</div><div>JAC</div>
+                    <div>KAMAZ</div><div>KENWORTH</div><div>MACK</div><div>MAHINDRA</div>
+                    <div>MAN</div><div>MAZ</div><div>MERCEDES-BENZ</div><div>MITSUBISHI FUSO</div>
+                    <div>NISSAN</div><div>OSHKOSH</div><div>OTOKAR</div><div>PETERBILT</div>
+                    <div>RENAULT</div><div>ROSENBAUER</div><div>ROWOR</div><div>SAIC-IVECO HONGYAN</div>
+                    <div>SANY</div><div>SCANIA</div><div>SEDDON ATKINSON</div><div>SHACMAN</div>
+                    <div>SISU</div><div>SML ISUZU</div><div>STERLING</div><div>TATA</div>
+                    <div>TATA-DAEWOO</div><div>TATRA</div><div>TERBERG</div><div>TRI-RING</div>
+                    <div>UD TRUCKS</div><div>URO</div><div>VOLKSWAGEN</div><div>VOLVO</div>
+                    <div>VOLVO USA</div><div>WESTERN STAR</div><div>XCMG</div><div>YOUNGMAN</div>
+                </div>
+                <p style="color: var(--text-muted); font-size: 12px; margin-top: 30px; font-style: italic;">* E muitas outras marcas de veículos industriais, ônibus, vans e maquinário pesado.</p>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="mod-modelos">
+            <div class="modal-content" style="max-height: 550px; overflow-y: auto;">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('mod-modelos')"></i>
+                <h3 style="color: var(--blue-brand); font-family: Orbitron; font-size: 26px; margin-bottom: 15px;" data-i18n="m-modelos-t">6.930 Modelos Catalogados</h3>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.7;" data-i18n="m-modelos-p">Chega de perder ordens de serviço. Coloque 6.930 modelos de veículos dentro da sua oficina hoje!<br><br>Cada vez que um caminhão ou van sai da sua oficina porque o seu scanner atual não faz a leitura, o seu dinheiro vai embora junto com ele. No mercado de veículos comerciais, tempo de pátio parado é prejuízo.<br><br>Com o Jaltest, você elimina esse problema de uma vez por todas. São 6.930 modelos de veículos cobertos em um único equipamento. Você passa a diagnosticar, calibrar e parametrizar as principais marcas do mercado com a velocidade que o seu cliente exige e a precisão que o seu mecânico precisa.<br><br>Não compre apenas um scanner, invista na ferramenta que vai aumentar o faturamento do seu negócio desde o primeiro dia.<br><br>Garanta o seu Jaltest com quem entende do assunto!<br>Acesse agora o nosso site, fale com um de nossos consultores especializados e descubra as condições exclusivas de financiamento e suporte que preparamos para você.<br>👉 Clique aqui e turbine sua oficina: <a href='https://pabu.com.br' target='_blank' style='color:var(--blue-brand); text-decoration:underline;'>pabu.com.br</a></p>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="mod-sistemas">
+            <div class="modal-content">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('mod-sistemas')"></i>
+                <h3 style="color: var(--blue-brand); font-family: Orbitron; font-size: 26px; margin-bottom: 15px;" data-i18n="m-sistemas-t">61.302 Sistemas Eletrônicos</h3>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.7;" data-i18n="m-sistemas-p">Varredura profunda e calibrações em transmissões automatizadas, módulos de injeção de motor, sistemas de freio ABS/EBS, suspensões pneumáticas e sistemas de pós-tratamento Arla32.</p>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="mod-info">
+            <div class="modal-content">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('mod-info')"></i>
+                <h3 style="color: var(--blue-brand); font-family: Orbitron; font-size: 26px; margin-bottom: 15px;" data-i18n="m-info-t">39.554 Dados de Informação Técnica</h3>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.7;" data-i18n="m-info-p">Acesso direto a tabelas de torque, especificações de componentes mecânicos, procedimentos passo a passo para testes dinâmicos guiados e valores de referência padrão.</p>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="mod-esquemas">
+            <div class="modal-content">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('mod-esquemas')"></i>
+                <h3 style="color: var(--blue-brand); font-family: Orbitron; font-size: 26px; margin-bottom: 15px;" data-i18n="m-esquemas-t">50.211 Esquemas Elétricos</h3>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.7;" data-i18n="m-esquemas-p">Diagramação inteligente de chicotes elétricos com links diretos para a verificação de sensores, continuidades de linhas de comunicação CAN-Bus e localização de componentes físicos no veículo.</p>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="info-jdiag">
+            <div class="modal-content" style="width: 850px; max-height: 620px; overflow-y: auto; padding: 40px;">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('info-jdiag')"></i>
+                <h3 style="color:var(--blue-brand); font-family:Orbitron; font-size: 28px; margin-bottom:20px; text-transform: uppercase;">• JALTEST DIAGNOSTICS</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; font-size: 14px; line-height: 1.6; text-align: left;">
+                    <p style="color:#fff; font-size: 15px; font-weight: 600;" data-i18n="md-jdiag">
+                        O scanner líder global em diagnóstico multimarca e multissistema para maquinários agrícolas, comerciais pesados e equipamentos de movimentação.
+                    </p>
+                    
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-cubes"></i> <span data-i18n="jd-m1-t">UMA SOLUÇÃO TOTALMENTE MODULAR</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="jd-m1-d">Os kits de diagnóstico adaptam-se inteiramente à oficina através de um dispositivo robusto de ligação (Link Device), associado a licenças de software personalizáveis segundo o segmento do veículo (CV, AGV, OHW, MHE, MARINE) e cabos de ligação direta.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-user-gear"></i> <span data-i18n="jd-m2-t">MODO EXPERTO (ESPECIALISTA)</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="jd-m2-d">Eleve o nível técnico com diagnósticos avançados que exigem modificação profunda de parâmetros em múltiplas ECUs. Permite realizar calibrações essenciais de sensores (injetores, atuadores VGT, curso do acelerador), configurações de funcionamento do sistema e reinicializações de serviços de manutenção de forma segura.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-sliders"></i> <span data-i18n="jd-m3-t">GESTÃO DE OFICINA INTEGRADA (GRP)</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="jd-m3-d">Aceda à solução otimizada de Gestão de Oficina (GRP) para organizar o fluxo de trabalho. Partilhe relatórios de diagnóstico minuciosos, organize históricos de dados de clientes ou veículos, controle tempos de reparação e otimize os fluxos das ordens de serviço numa única plataforma interativa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" id="info-cobertura">
+            <div class="modal-content" style="width: 850px; max-height: 620px; overflow-y: auto; padding: 40px;">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('info-cobertura')"></i>
+                <h3 style="color:var(--blue-brand); font-family:Orbitron; font-size: 28px; margin-bottom:20px; text-transform: uppercase;">• COBERTURA MULTIMARCA</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; font-size: 14px; line-height: 1.6; text-align: left;">
+                    <p style="color:#fff; font-size: 15px; font-weight: 600;" data-i18n="md-cob">
+                        Desenvolvimento contínuo para embarcar novos veículos e sistemas eletrônicos em tempo recorde no mercado reparador.
+                    </p>
+                    
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-truck"></i> <span data-i18n="cob-m1-t">LÍDER EM VEÍCULOS COMERCIAIS (CAMIÃO)</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="cob-m1-d">A maior cobertura do mercado para veículos pesados e camiões mundiais. Suporte completo a fabricantes de prestígio como DAF, Iveco, MAN, Mercedes-Benz, Renault, Scania, Volvo, bem como as marcas americanas e asiáticas líderes do setor de transporte de mercadorias.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-gears"></i> <span data-i18n="cob-m2-t">SISTEMAS E COMPONENTES DE FABRICANTES BIEL</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="cob-m2-d">Não se limita apenas à marca do veículo; indexa sistemas eletrónicos proprietários desenvolvidos diretamente pelos grandes fabricantes mundiais da cadeia cinemática e periféricos, incluindo transmissões Allison, ZF, Eaton, e sistemas de travagem/segurança Bosch, Wabco, Knorr-Bremse e Haldex.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-bolt-lightning"></i> <span data-i18n="cob-m3-t">DIAGNOSE COMPLETA DE MOTOR E PÓS-TRATAMENTO</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="cob-m3-d">Mapeamento dinâmico profundo e calibração de blocos de motor diesel líderes independentes, tais como Cummins, Caterpillar, Detroit Diesel, Deutz e Perkins. Garante uma cobertura exaustiva nos complexos sistemas anti-poluição e de pós-tratamento de gases de escape (SDR, SCR, AdBlue/Arla32, DPF).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="info-software">
+            <div class="modal-content" style="width: 850px; max-height: 620px; overflow-y: auto; padding: 40px;">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('info-software')"></i>
+                <h3 style="color:var(--blue-brand); font-family:Orbitron; font-size: 28px; margin-bottom:20px; text-transform: uppercase;">• JALTEST TOOLS SOFTWARE</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; font-size: 14px; line-height: 1.6; text-align: left;">
+                    <p style="color:#fff; font-size: 15px; font-weight: 600;" data-i18n="md-soft">
+                        Atualizações automatizadas rápidas, interface limpa, gráficos de telemetria e controle integrado de ordens de serviço para oficinas.
+                    </p>
+                    
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-compress"></i> <span data-i18n="sw-m1-t">COMPATIBILIDADE INTEGRAL E EQUIPAMENTO PROFISSIONAL</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="sw-m1-d">O ecossistema Jaltest Tools fornece à oficina equipamentos eletrônicos e de calibração avançados de alta qualidade projetados por engenheiros especializados. O software garante total compatibilidade com o ecossistema Jaltest Diagnostics, centralizando todas as ferramentas sob um único ecossistema operacional de reparação, recalibração e manutenção profissional.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-screwdriver-wrench"></i> <span data-i18n="sw-m2-t">VERIFICAÇÃO AVANÇADA, ADAS E MÓDULOS ESPECIAIS</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="sw-m2-d">Gerencie via software equipamentos de última geração, como os painéis digitais de calibração ADAS, bancadas de simulação de ECU (Jaltest ESB), módulos de teste eletrônico de atuadores (Jaltest ETM), ferramentas de monitoramento de sensores de velocidade (Jaltest SST), sensores de desgaste de pastilhas (Jaltest WST) e sistemas TPMS sem a necessidade de alternar interfaces.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="sw-m3-t">DIGITALIZAÇÃO, EXPORTAÇÃO E ECONOMIA DE TEMPO</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="sw-m3-d">Graças aos assistentes guiados passo a passo e updates automáticos via Wi-Fi, o software simplifica tarefas complexas presentes em veículos de nova geração. Permite sincronizar, analisar e exportar relatórios técnicos detalhados em segundos para agilizar a tomada de decisões da equipe de mecânicos e economizar custos de mão de obra.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="info-hardware">
+            <div class="modal-content" style="width: 850px; max-height: 620px; overflow-y: auto; padding: 40px;">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('info-hardware')"></i>
+                <h3 style="color:var(--blue-brand); font-family:Orbitron; font-size: 28px; margin-bottom:20px; text-transform: uppercase;">• EQUIPAMENTO DE VERIFICAÇÃO E ADAS</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; font-size: 14px; line-height: 1.6; text-align: left;">
+                    <p style="color:#fff; font-size: 15px; font-weight: 600;" data-i18n="md-hard">
+                        Módulos robustos de comunicação Link Box com proteção de circuitos internos projetados para o uso severo no ambiente de oficinas.
+                    </p>
+                    
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-eye"></i> <span data-i18n="hd-m1-t">SISTEMAS AVANÇADOS DE ASSISTÊNCIA AO CONDUTOR (ADAS)</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="hd-m1-d">Disponibiliza estruturas e painéis de calibração profissionais para câmaras, radares e sensores integrados em sistemas ADAS de segurança ativa de veículos pesados. Essencial para restabelecer os padrões milimétricos originais de fábrica após colisões, substituições de para-brisas ou reparações estruturais na carroçaria.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-microchip"></i> <span data-i18n="hd-m2-t">FERRAMENTAS DE SIMULAÇÃO ELETRÓNICA NA BANCADA</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="hd-m2-d">Conta com módulos especializados como o Jaltest ESB (Electronic Simulation Bench), que executa testes dinâmicos e isolamento completo de unidades de controlo sem a necessidade física do veículo na oficina, e o Jaltest ETM, dedicado à verificação de atuadores eletrónicos de turbos (VGT), válvulas EGR e moduladores de travagem EBS.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-network-wired"></i> <span data-i18n="hd-m3-t">VERIFICAÇÃO DE SENSORES DE VELOCIDADE E SEGURANÇA</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="hd-m3-d">Inclui dispositivos de diagnóstico físico direto como o Jaltest SST (Speed Sensor Tester) para analisar de forma estanque o sinal elétrico e a integridade de sensores de velocidade de rotação das rodas (ABS/EBS) e sensores de desgaste de pastilhas de travão (Jaltest WST), poupando tempo na deteção de interrupções de cablagens ou falhas ocultas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="info-servicos">
+            <div class="modal-content" style="width: 850px; max-height: 620px; overflow-y: auto; padding: 40px;">
+                <i class="fa-solid fa-xmark close-btn" onclick="closeModal('info-servicos')"></i>
+                <h3 style="color:var(--blue-brand); font-family:Orbitron; font-size: 28px; margin-bottom:20px; text-transform: uppercase;">• SERVIÇOS JALTEST</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; font-size: 14px; line-height: 1.6; text-align: left;">
+                    <p style="color:#fff; font-size: 15px; font-weight: 600;" data-i18n="md-ser">
+                        Consultoria, treinamento avançado ao reparador pesado e suporte técnico pós-venda direto da fábrica.
+                    </p>
+                    
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-headset"></i> <span data-i18n="ser-m1-t">SUPORTE TÉCNICO ESPECIALIZADO</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="ser-m1-d">Equipa de apoio técnico altamente qualificada disponível para resolver qualquer dúvida sobre o software ou dificuldades em diagnósticos complexos no veículo, com opção de assistência remota direta para agilizar a reparação.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-graduation-cap"></i> <span data-i18n="ser-m2-t">FORMAÇÃO (JALTEST UNIVERSITY)</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="ser-m2-d">Programas de formação contínua em formato presencial ou e-learning através da Jaltest University. Cursos adaptados às novas tecnologias de diagnóstico e eletrónica avançada para capacitar os mecânicos e gestores de frota.</p>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(0, 168, 255, 0.2); padding-top: 15px;">
+                        <h4 style="color: var(--blue-brand); font-family: Orbitron; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-face-smile"></i> <span data-i18n="ser-m3-t">ATENDIMENTO AO CLIENTE</span>
+                        </h4>
+                        <p style="color: #cbd5e1;" data-i18n="ser-m3-d">Um departamento especializado dedicado exclusivamente à gestão e satisfação do cliente. Garante que todas as necessidades específicas da oficina sejam ouvidas e atendidas com agilidade, otimizando a experiência com o ecossistema Jaltest.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="info-cojali"><div class="modal-content"><i class="fa-solid fa-xmark close-btn" onclick="closeModal('info-cojali')"></i><h3 style="color:var(--blue-brand); font-family:Orbitron; margin-bottom:15px;">COJALI ENGINEERING</h3><p style="color:#cbd5e1; line-height:1.6;" data-i18n="md-cojali">Mais de 30 anos desenvolvendo componentes tecnológicos e sistemas de acoplamento de ventiladores para a indústria global.</p></div></div>
+
+    </div>
+
+    <script>
+        const translations = {
+            pt: {
+                "nav-1": "Início", "nav-2": "Cobertura", "nav-3": "Capacidade", "nav-4": "Interface", "nav-5": "Soluções",
+                "s1-subtitle": "Tecnologia de diagnóstico multimarca líder para veículos comerciais e pesados.",
+                "s1-btn": "EXPLORAR CONTEÚDO",
+                "s2-title-1": "Amplitude de", "s2-title-2": "Cobertura",
+                "s2-desc": "O ecossistema Jaltest oferece compatibilidade sem precedentes no mercado global de reparação pesada. Clique nos blocos para conferir os detalhes técnicos de aplicação.",
+                "s2-tag": "Atualizações", "s2-tag-desc": "3 grandes pacotes de software homologados por ano.",
+                "lbl-marcas": "Marcas", "p-marcas": "Fabricantes suportados mundialmente.", "lbl-ver": "Ver Detalhes +",
+                "lbl-modelos": "Modelos", "p-modelos": "Configurações de veículos comerciais.",
+                "s3-title-1": "Capacidade", "s3-title-2": "Técnica",
+                "lbl-sistemas": "Sistemas", "p-sistemas": "Eletrônicas embarcadas e centrais indexadas no banco.",
+                "lbl-info": "Informações", "p-info": "Guias detalhados de manutenção técnica recomendada.",
+                "lbl-esquemas": "Esquemas", "p-esquemas": "Diagramas elétricos interativos e pin-outs de conectores.",
+                "s4-title-1": "Interface do", "s4-title-2": "Usuário",
+                "mock-1": "Gráficos em Tempo Real", "mock-2": "Leitura de Erros DTC",
+                "s4-h3": "Navegação Fluida e Intuitiva",
+                "s4-p": "Desenvolvido por mecânicos para mecânicos. Exibição limpa de árvores de sistemas, identificação imediata de falhas e integração com dados de engenharia proprietária de forma rápida.",
+                "s5-h2": "Soluções Técnicas e de Diagnóstico Líderes da Indústria",
+                "s5-p": "A engenharia Cojali integrada para entregar a máxima performance operacional na oficina.",
+                "c-cob": "Cobertura", "c-ser": "Servicios",
+                "m-marcas-t": "242 Marcas Globais", "m-marcas-p": "Amplo ecossistema que cobre as principais marcas americanas, europeias e asiáticas do setor de transporte de cargas, ônibus e vans.",
+                "m-modelos-t": "6.930 Modelos Catalogados", "m-modelos-p": "Chega de perder ordens de serviço. Coloque 6.930 modelos de veículos dentro da sua oficina hoje!<br><br>Cada vez que um caminhão ou van sai da sua oficina porque o seu scanner atual não faz a leitura, o seu dinheiro vai embora junto com ele. No mercado de veículos comerciais, tempo de pátio parado é prejuízo.<br><br>Com o Jaltest, você elimina esse problema de uma vez por todas. São 6.930 modelos de veículos cobertos em um único equipamento. Você passa a diagnosticar, calibrar e parametrizar as principais marcas do mercado com a velocidade que o seu cliente exige e a precisão que o seu mecânico precisa.<br><br>Não compre apenas um scanner, invista na ferramenta que vai aumentar o faturamento do seu negócio desde o primeiro dia.<br><br>Garanta o seu Jaltest com quem entende do assunto!<br>Acesse agora o nosso site, fale com um de nossos consultores especializados e descubra as condições exclusivas de financiamento e suporte que preparamos para você.<br>👉 Clique aqui e turbine sua oficina: <a href='https://pabu.com.br' target='_blank' style='color:var(--blue-brand); text-decoration:underline;'>pabu.com.br</a>",
+                "m-sistemas-t": "61.302 Sistemas Eletrônicos", "m-sistemas-p": "Varredura profunda e calibrações em transmissões automatizadas, módulos de injeção de motor, sistemas de freio ABS/EBS, suspensões pneumáticas e sistemas de pós-tratamento Arla32.",
+                "m-info-t": "39.554 Dados de Informação Técnica", "m-info-p": "Acesso direto a tabelas de torque, especificações de componentes mecânicos, procedimentos passo a passo para testes dinâmicos guiados e valores de referência padrão.",
+                "m-esquemas-t": "50.211 Esquemas Elétricos", "m-esquemas-p": "Diagramação inteligente de chicotes elétricos com links diretos para a verificação de sensores, continuidades de linhas de comunicação CAN-Bus e localização de componentes físicos no veículo.",
+                "md-jdiag": "O scanner líder global em diagnóstico multimarca e multissistema para maquinários agrícolas, comerciais pesados e equipamentos de movimentação.",
+                "jd-m1-t": "UMA SOLUÇÃO TOTALMENTE MODULAR", "jd-m1-d": "Os kits de diagnóstico adaptam-se inteiramente à oficina através de um dispositivo robusto de ligação (Link Device), associado a licenças de software personalizáveis segundo o segmento do veículo (CV, AGV, OHW, MHE, MARINE) e cabos de ligação direta.",
+                "jd-m2-t": "MODO EXPERTO (ESPECIALISTA)", "jd-m2-d": "Eleve o nível técnico com diagnósticos avançados que exigem modificação profunda de parâmetros em múltiplas ECUs. Permite realizar calibrações essenciais de sensores (injetores, atuadores VGT, curso do acelerador), configurações de funcionamento do sistema e reinicializações de serviços de manutenção de forma segura.",
+                "jd-m3-t": "GESTÃO DE OFICINA INTEGRADA (GRP)", "jd-m3-d": "Aceda à solução otimizada de Gestão de Oficina (GRP) para organizar o fluxo de trabalho. Partilhe relatórios de diagnóstico minuciosos, organize históricos de dados de clientes ou veículos, controle tempos de reparação e otimize os fluxos das ordens de serviço numa única plataforma interativa.",
+                "md-cob": "Desenvolvimento contínuo para acessar novos veículos e sistemas eletrônicos em tempo recorde no mercado reparador.",
+                "cob-m1-t": "LÍDER EM VEÍCULOS COMERCIAIS (CAMIÃO)", "cob-m1-d": "A maior cobertura do mercado para veículos pesados e camiões mundiais. Suporte completo a fabricantes de prestígio como DAF, Iveco, MAN, Mercedes-Benz, Renault, Scania, Volvo, bem como as marcas americanas e asiáticas líderes do setor de transporte de mercadorias.",
+                "cob-m2-t": "SISTEMAS E COMPONENTES DE FABRICANTES BIEL", "cob-m2-d": "Não se limita apenas à marca do veículo; indexa sistemas eletrónicos proprietários desenvolvidos diretamente pelos grandes fabricantes mundiais da cadeia cinemática e periféricos, incluindo transmissões Allison, ZF, Eaton, e sistemas de travagem/segurança Bosch, Wabco, Knorr-Bremse e Haldex.",
+                "cob-m3-t": "DIAGNOSE COMPLETA DE MOTOR E PÓS-TRATAMENTO", "cob-m3-d": "Mapeamento dinâmico profundo e calibração de blocos de motor diesel líderes independentes, tais como Cummins, Caterpillar, Detroit Diesel, Deutz e Perkins. Garante uma cobertura exaustiva nos complexos sistemas anti-poluição e de pós-tratamento de gases de escape (SDR, SCR, AdBlue/Arla32, DPF).",
+                "md-soft": "Atualizações automatizadas rápidas, interface limpa, gráficos de telemetria e controle integrado de ordens de serviço para oficinas.",
+                "sw-m1-t": "COMPATIBILIDADE INTEGRAL E EQUIPAMENTO PROFISSIONAL", "sw-m1-d": "O ecossistema Jaltest Tools fornece à oficina equipamentos eletrônicos e de calibração avançados de alta qualidade projetados por engenheiros especializados. O software garante total compatibilidade com o ecossistema Jaltest Diagnostics, centralizando todas as ferramentas sob um único ecossistema operacional de reparação, recalibração e manutenção profissional.",
+                "sw-m2-t": "VERIFICAÇÃO AVANÇADA, ADAS E MÓDULOS ESPECIAIS", "sw-m2-d": "Gerencie via software equipamentos de última geração, como os painéis digitais de calibração ADAS, bancadas de simulação de ECU (Jaltest ESB), módulos de teste eletrônico de atuadores (Jaltest ETM), ferramentas de monitoramento de sensores de velocidade (Jaltest SST), sensores de desgaste de pastilhas (Jaltest WST) e sistemas TPMS sem a necessidade de alternar interfaces.",
+                "sw-m3-t": "DIGITALIZAÇÃO, EXPORTAÇÃO E ECONOMIA DE TEMPO", "sw-m3-d": "Graças aos assistentes guiados passo a passo e updates automáticos via Wi-Fi, o software simplifica tarefas complexas presentes em veículos de nova geração. Permite sincronizar, analisar e exportar relatórios técnicos detalhados em segundos para agilizar a tomada de decisões da equipe de mecânicos e economizar custos de mão de obra.",
+                "md-hard": "Equipamentos profissionais avançados de verificação eletrónica e calibração milimétrica concebidos para as necessidades reais do ambiente severo das oficinas.",
+                "hd-m1-t": "SISTEMAS AVANÇADOS DE ASSISTÊNCIA AO CONDUTOR (ADAS)", "hd-m1-d": "Disponibiliza estruturas e painéis de calibração profissionais para câmaras, radares e sensores integrados em sistemas ADAS de segurança ativa de veículos pesados. Essencial para restabelecer os padrões milimétricos originais de fábrica após colisões, substituições de para-brisas ou reparações estruturais na carroçaria.",
+                "hd-m2-t": "FERRAMENTAS DE SIMULAÇÃO ELETRÓNICA NA BANCADA", "hd-m2-d": "Conta com módulos especializados como o Jaltest ESB (Electronic Simulation Bench), que executa testes dinâmicos e isolamento completo de unidades de controlo sem a necessidade física do veículo na oficina, e o Jaltest ETM, dedicado à verificação de atuadores eletrónicos de turbos (VGT), válvulas EGR e moduladores de travagem EBS.",
+                "hd-m3-t": "VERIFICAÇÃO DE SENSORES DE VELOCIDADE E SEGURANÇA", "hd-m3-d": "Inclui dispositivos de diagnóstico físico direto como o Jaltest SST (Speed Sensor Tester) para analisar de forma estanque o sinal elétrico e a integridade de sensores de velocidade de rotação das rodas (ABS/EBS) e sensores de desgaste de pastilhas de travão (Jaltest WST), poupando tempo na deteção de interrupções de cablagens ou falhas ocultas.",
+                "md-ser": "Consultoria, treinamento avançado ao reparador pesado e suporte técnico pós-venda direto da fábrica.",
+                "ser-m1-t": "SUPORTE TÉCNICO ESPECIALIZADO", "ser-m1-d": "Equipa de apoio técnico altamente qualificada disponível para resolver qualquer dúvida sobre o software ou dificuldades em diagnósticos complexos no veículo, com opção de assistência remota direta para agilizar a reparação.",
+                "ser-m2-t": "FORMAÇÃO (JALTEST UNIVERSITY)", "ser-m2-d": "Programas de formação contínua em formato presencial ou e-learning através da Jaltest University. Cursos adaptados às novas tecnologias de diagnóstico e eletrónica avançada para capacitar os mecânicos e gestores de frota.",
+                "ser-m3-t": "ATENDIMENTO AO CLIENTE", "ser-m3-d": "Um departamento especializado dedicado exclusivamente à gestão e satisfação do cliente. Garante que todas as necessidades específicas da oficina sejam ouvidas e atendidas com agilidade, otimizando a experiência com o ecossistema Jaltest.",
+                "md-cojali": "Mais de 30 anos desenvolvendo componentes tecnológicos e sistemas de acoplamento de ventiladores para a indústria global."
+            },
+            en: {
+                "nav-1": "Home", "nav-2": "Coverage", "nav-3": "Capability", "nav-4": "Interface", "nav-5": "Solutions",
+                "s1-subtitle": "Leading multi-brand diagnostic technology for commercial and heavy-duty vehicles.",
+                "s1-btn": "EXPLORE CONTENT",
+                "s2-title-1": "Coverage", "s2-title-2": "Range",
+                "s2-desc": "The Jaltest ecosystem provides unprecedented compatibility across the heavy-duty repair market worldwide. Click on the boxes to check technical application logs.",
+                "s2-tag": "Updates", "s2-tag-desc": "3 major certified software packages released per year.",
+                "lbl-marcas": "Brands", "p-marcas": "Manufacturers supported worldwide.", "lbl-ver": "View Details +",
+                "lbl-modelos": "Models", "p-modelos": "Commercial vehicle configurations.",
+                "s3-title-1": "Technical", "s3-title-2": "Capability",
+                "lbl-sistemas": "Systems", "p-sistemas": "Embedded electronics and ECU indexes.",
+                "lbl-info": "Information", "p-info": "Detailed technical maintenance guides.",
+                "lbl-esquemas": "Wiring Diagrams", "p-esquemas": "Interactive electrical wiring layouts and pin-outs.",
+                "s4-title-1": "User", "s4-title-2": "Interface",
+                "mock-1": "Real-Time Telemetry", "mock-2": "DTC Fault Reading",
+                "s4-h3": "Fluid and Intuitive Navigation",
+                "s4-p": "Built by mechanics for mechanics. Clean system trees, instant error recognition, and quick integration with OEM engineering data.",
+                "s5-h2": "Industry-Leading Diagnostics & Technical Solutions",
+                "s5-p": "Integrated Cojali engineering delivering maximum shop floor performance.",
+                "c-cob": "Coverage", "c-ser": "Services",
+                "m-marcas-t": "242 Global Brands", "m-marcas-p": "Extensive coverage supporting major American, European, and Asian transport and logistics truck, bus, and van manufacturers.",
+                "m-modelos-t": "6.930 Models cataloged", "m-modelos-p": "Full tracing from medium-duty delivery trucks to heavy-duty platforms across classic vehicle generations up to newest Euro 6 standards.",
+                "m-sistemas-t": "61,302 Electronic Systems", "m-sistemas-p": "Deep scan and system calibrations on automated transmissions, engine controls, ABS/EBS brakes, air suspensions, and AdBlue aftertreatment.",
+                "m-info-t": "39.554 Technical Data Guides", "m-info-p": "Instant access to torque tables, mechanical components details, step-by-step guided tests, and reference check-values.",
+                "m-esquemas-t": "50.211 Electrical Layouts", "m-esquemas-p": "Smart wiring maps featuring links for components checks, CAN-Bus lines check-outs, and component layout locators.",
+                "md-jdiag": "The leading multi-brand and multi-system diagnostic system for agricultural, commercial vehicles, and material handling gear.",
+                "jd-m1-t": "A TOTALLY MODULAR SOLUTION", "jd-m1-d": "Diagnostic kits adapt entirely to the workshop through a rugged connection interface (Link Device), combined with customizable software licenses depending on vehicle segments (CV, AGV, OHW, MHE, MARINE) and direct connection cables.",
+                "jd-m2-t": "EXPERT MODE", "jd-m2-d": "Elevate your tech level with advanced diagnostics requiring customization parameters across multiple ECUs. It allows to execute sensor calibrations (injectors, VGT actuators, accelerator stroke), system operation parameters setups and service resets safely.",
+                "jd-m3-t": "WORKSHOP MANAGEMENT SYSTEM (GRP)", "jd-m3-d": "Access our optimized Workshop Management Solution (GRP) to organize workflow schedules. Share detailed diagnostic tracking logs, manage customer or vehicle records, track repair times, and optimize job orders inside a single system.",
+                "md-cob": "Continuous development tracking to release new vehicles and modules setup at record speed.",
+                "cob-m1-t": "LEADER IN COMMERCIAL VEHICLES (TRUCK)", "cob-m1-d": "The largest market coverage for global heavy-duty trucks. Full support for prestigious manufacturers like DAF, Iveco, MAN, Mercedes-Benz, Renault, Scania, Volvo, as well as leading American and Asian transport brands.",
+                "cob-m2-t": "MANUFACTURERS SYSTEMS AND COMPONENTS", "cob-m2-d": "It is not limited just to the vehicle brand; it indexes proprietary electronic systems developed directly by global powertrain and peripheral manufacturers, including Allison, ZF, Eaton transmissions, and Bosch, Wabco, Knorr-Bremse, and Haldex braking/safety systems.",
+                "cob-m3-t": "COMPLETE ENGINE & AFTERTREATMENT DIAGNOSIS", "cob-m3-d": "Deep dynamic mapping and calibration of independent leading diesel engine blocks, such as Cummins, Caterpillar, Detroit Diesel, Deutz, and Perkins. Guarantees exhaustive coverage on complex anti-pollution and exhaust gas aftertreatment systems (SDR, SCR, AdBlue, DPF).",
+                "md-soft": "Fast automated updates, smooth layout, telemetry graphs, and job tracking setup.",
+                "sw-m1-t": "FULL COMPATIBILITY AND PROFESSIONAL EQUIPMENT", "sw-m1-d": "The Jaltest Tools product line provides the workshop with high-quality advanced electronic and calibration tools designed by expert engineers. The software ensures complete compatibility with the Jaltest Diagnostics framework, centralizing all components under a single operational environment for seamless repair, recalibration, and master maintenance processes.",
+                "sw-m2-t": "ADVANCED CHECKING, ADAS & SPECIAL MODULES", "sw-m2-d": "Manage cutting-edge equipment seamlessly via software, including digital ADAS calibration frames, ECU simulation benches (Jaltest ESB), electronic actuator test modules (Jaltest ETM), speed sensor testers (Jaltest SST), wear sensor testers (Jaltest WST), and complete TPMS setups without switching programs.",
+                "sw-m3-t": "DIGITALIZATION, EXPORT AND TIME SAVINGS", "sw-m3-d": "Thanks to step-by-step guided assistants and automatic over-the-air Wi-Fi software updates, the software simplifies complex troubleshooting setups found in new vehicle generations. Sychronize, analyze, and export rich technical tracking reports in seconds to empower your repair crew and cut down labor time costs.",
+                "md-hard": "Advanced professional verification and millimeter-precision calibration hardware engineered for the real demands of rough workshop setups.",
+                "hd-m1-t": "ADVANCED DRIVER ASSISTANCE SYSTEMS (ADAS)", "hd-m1-d": "Provides specialized calibration structures and targeting frames for cameras, radars, and safety sensors integrated into heavy-duty commercial ADAS. Critical for restoring strict OEM factory tolerances following collisions, windshield replacements, or structural body works.",
+                "hd-m2-t": "BENCH TOP ELECTRONIC SIMULATION SYSTEM TOOLS", "hd-m2-d": "Features highly specialized instrumentation like the Jaltest ESB (Electronic Simulation Bench) to execute dynamic electrical diagnostics on ECUs without the truck present, alongside the Jaltest ETM module engineered to test turbo electronic actuators (VGT), EGR valves, and EBS brakes.",
+                "hd-m3-t": "SPEED SENSORS & BRAKE SYSTEMS TESTING DEVICES", "hd-m3-d": "Includes portable custom physical diagnostic interfaces like the Jaltest SST (Speed Sensor Tester) to isolate and verify wheel rotation electrical wave signatures (ABS/EBS), along with Jaltest WST wear sensor kits, drastically lowering crew fault isolation times.",
+                "md-ser": "SPECIALIZED TECHNICAL SUPPORT", "ser-m1-d": "Highly qualified technical support team available to solve any software questions or complex diagnostic difficulties on the vehicle, with direct remote assistance options to speed up repair.",
+                "ser-m2-t": "TRAINING (JALTEST UNIVERSITY)", "ser-m2-d": "Continuous training programs in classroom or e-learning format through Jaltest University. Courses adapted to new diagnostic technologies and advanced electronics to empower mechanics and fleet managers.",
+                "ser-m3-t": "CUSTOMER SERVICE", "ser-m3-d": "A specialized department dedicated exclusively to customer management and satisfaction. Ensures all specific workshop needs are heard and addressed quickly, optimizing the experience with the Jaltest ecosystem.",
+                "md-cojali": "Over 30 years engineering technical parts and master fan clutch drive systems globally."
+            },
+            es: {
+                "nav-1": "Inicio", "nav-2": "Cobertura", "nav-3": "Capacidad", "nav-4": "Interface", "nav-5": "Soluciones",
+                "s1-subtitle": "Tecnología de diagnosis multimarca líder para veículos comerciales y pesados.",
+                "s1-btn": "EXPLORAR CONTENIDO",
+                "s2-title-1": "Amplitud de", "s2-title-2": "Cobertura",
+                "s2-desc": "El ecosistema Jaltest ofrece una compatibilidad sem precedentes en el mercado global del vehículo industrial. Pulse en los bloques para ver detalles de aplicação.",
+                "s2-tag": "Actualizaciones", "s2-tag-desc": "3 grandes paquetes de software homologados por ano.",
+                "lbl-marcas": "Marcas", "p-marcas": "Fabricantes soportados a nivel mundial.", "lbl-ver": "Ver Detalles +",
+                "lbl-modelos": "Modelos", "p-modelos": "Configuraciones de vehículos comerciais.",
+                "s3-title-1": "Capacidad", "s3-title-2": "Técnica",
+                "lbl-sistemas": "Sistemas", "p-sistemas": "Electrónicas embarcadas y centrales indexadas.",
+                "lbl-info": "Informaciones", "p-info": "Guías detalhadas de mantenimiento técnico recomendado.",
+                "lbl-esquemas": "Esquemas", "p-esquemas": "Diagramas eléctricos interactivos y pin-outs de conectores.",
+                "s4-title-1": "Interfaz de", "s4-title-2": "Usuario",
+                "mock-1": "Gráficos em Tempo Real", "mock-2": "Lectura de Erros DTC",
+                "s4-h3": "Navegação Fluida e Intuitiva",
+                "s4-p": "Desenvolvido por mecânicos para mecânicos. Visualização limpa de árvores de sistemas, identificação imediata de falhas e integração rápida com dados de engenharia.",
+                "s5-h2": "Soluciones Técnicas y de Diagnosis Líderes da Indústria",
+                "s5-p": "La ingeniería Cojali integrada para entregar el máximo rendimiento operativo en el taller.",
+                "c-cob": "Cobertura", "c-ser": "Servicios",
+                "m-marcas-t": "242 Marcas Globales", "m-marcas-p": "Amplio ecosistema que cubre las principales marcas americanas, europeas y asiáticas do sector de transporte, autobuses y furgonetas.",
+                "m-modelos-t": "6.930 Modelos Catalogados", "m-modelos-p": "Mapeo completo desde camiones ligeros hasta tractoras pesadas desde generaciones antiguas hasta los estándares Euro 6.",
+                "m-sistemas-t": "61.302 Sistemas Electrónicos", "m-sistemas-p": "Diagnosis profunda y calibraciones en transmisiones automatizadas, módulos de motor, frenos ABS/EBS, suspensiones y sistemas AdBlue.",
+                "m-info-t": "39.554 Datos de Información Técnica", "m-info-p": "Acceso directo a tablas de apriete, especificaciones de componentes mecánicos, procedimentos passo a passo y valores de referência.",
+                "m-esquemas-t": "50.211 Esquemas Elétricos", "m-esquemas-p": "Diagramas eléctricos inteligentes con enlaces directos para la comprobación de sensores y líneas de comunicación CAN-Bus.",
+                "md-jdiag": "El equipo de diagnosis multimarca y multisistema líder global para maquinaria agrícola, comercial pesado y equipos de manutención.",
+                "jd-m1-t": "UNA SOLUÇÃO TOTALMENTE MODULAR", "jd-m1-d": "Los kits de diagnosis se adaptan al taller a través de un dispositivo robusto de conexión (Link Device), asociado a licenças de software personalizáveis según el segmento (CV, AGV, OHW, MHE, MARINE) y cables de conexión directa.",
+                "jd-m2-t": "MODO EXPERTO", "jd-m2-d": "Eleve su nivel técnico con funciones de diagnosis avanzadas que requieren modificación de parâmetros en las ECUs. Permite realizar calibraciones de sensores (inyectores, atuadores VGT, acelarador), configuraciones de funcionamento y reseteos de mantenimiento de forma segura.",
+                "jd-m3-t": "SISTEMA DE GESTIÓN DE TALLER (GRP)", "jd-m3-d": "Acceda a la solução optimizada de Gestión de Taller (GRP) para organizar el fluxo de trabalho. Comparta informes de diagnosis detalhados, gestione el historial de clientes o veículos, controle los tiempos de reparação y gestione las órdenes de trabajo de forma unificada.",
+                "md-cob": "Desarrollo continuo para incorporar novos veículos y sistemas electrónicos a tiempo récord.",
+                "cob-m1-t": "LÍDER EN VEHÍCULOS COMERCIALES (CAMIÓN)", "cob-m1-d": "La mayor cobertura del mercado para veículos pesados y camiones mundiales. Soporte completo para fabricantes de prestígio como DAF, Iveco, MAN, Mercedes-Benz, Renault, Scania, Volvo, así como las principales marcas americanas y asiáticas de transporte.",
+                "cob-m2-t": "SISTEMAS Y COMPONENTES DE FABRICANTES", "cob-m2-d": "No se limita solo a la marca del veículo; indexa sistemas electrónicos proprietários desarrollados directamente por los grandes fabricantes mundiales, incluyendo transmissões Allison, ZF, Eaton, y sistemas de frenado/seguridad Bosch, Wabco, Knorr-Bremse y Haldex.",
+                "cob-m3-t": "DIAGNOSIS COMPLETA DE MOTOR Y POST-TRATAMIENTO", "cob-m3-d": "Mapeo dinâmico profundo y calibración de blocos de motor diésel independientes líderes, como Cummins, Caterpillar, Detroit Diesel, Deutz y Perkins. Garante una cobertura exaustiva en sistemas anticontaminación complejos (SDR, SCR, AdBlue, DPF).",
+                "md-soft": "Atualizações automáticas rápidas, interfaz limpia, gráficos de telemetria y gestão de taller integrada.",
+                "sw-m1-t": "COMPATIBILIDAD INTEGRAL Y EQUIPO PROFISSIONAL", "sw-m1-d": "La gama de produtos Jaltest Tools ha sido desarrollada para aportar al taller ferramentas y equipamentos profissionais de alta qualidade. El software asegura total compatibilidade com los equipamentos de Jaltest Diagnostics, facilitando a comodidade de centralizar las fases de reparação, recalibração y mantenimiento de qualquer tipo de veículo y marca.",
+                "sw-m2-t": "COMPROBACIÓN AVANZADA, ADAS Y MÓDULOS ESPECIALES", "sw-m2-d": "Gestione a través del software ferramentas de vanguardia, como los marcos digitales de calibración ADAS, bancos de simulação de ECU (Jaltest ESB), módulos de comprobación de actuadores (Jaltest ETM), equipamentos de prueba de sensores de velocidade (Jaltest SST), sensores de desgaste (Jaltest WST) y sistemas TPMS sin cambiar de programa.",
+                "sw-m3-t": "DIGITALIZAÇÃO, EXPORTAÇÃO E AHORROS DE TIEMPO", "sw-m3-d": "A través de asistentes guiados passo a passo y actualizaciones de software automáticas vía Wi-Fi, la interfaz soluciona de forma ágil los incidentes de sistemas avanzados. Permite sincronizar y exportar datos e informes minuciosos en segundos, asegurando una gran economia en los custos de mano de obra de la plantilla.",
+                "md-hard": "Equipos profissionais avanzados de comprobación electrónica y calibración de precisión diseñados para las demandas de los entornos reales del taller.",
+                "hd-m1-t": "SISTEMAS AVANZADOS DE ASSISTÊNCIA AL CONDUCTOR (ADAS)", "hd-m1-d": "Suministra estructuras y paneles de calibración profissionais para câmaras, radares y sensores integrados en sistemas ADAS de segurança ativa de veículos industriales. Vital para restablecer los estándares de fábrica tras colisiones, sustitución de lunas o reparaciones de carrocería.",
+                "hd-m2-t": "HERRAMIENTAS DE SIMULAÇÃO ELECTRÓNICA EN BANCO", "hd-m2-d": "Dispone de instrumental especializado como Jaltest ESB (Electronic Simulation Bench) para realizar pruebas dinâmicas y chequeo de ECUs sin el veículo en el taller, junto con el módulo Jaltest ETM para verificar atuadores electrónicos de turbo (VGT), válvulas EGR e moduladores EBS.",
+                "hd-m3-t": "COMPROBACIÓN DE SENSORES DE VELOCIDADE Y FRENADO", "hd-m3-d": "Incluye interfaces de comprobación física direta como Jaltest SST (Speed Sensor Tester) para analisar señales y estado de sensores de velocidade de ruedas (ABS/EBS) y kits Jaltest WST para sensores de desgaste de pastilhas de freno, reduciendo los tiempos de diagnosis.",
+                "md-ser": "SOPORTE TÉCNICO ESPECIALIZADO", "ser-m1-d": "Equipa de apoio técnico altamente qualificado disponível para resolver qualquer dúvida sobre o software ou dificuldades em diagnósticos complejos, com opção de assistência remota direta para agilizar a reparação.",
+                "ser-m2-t": "FORMACIÓN (JALTEST UNIVERSITY)", "ser-m2-d": "Programas de formación contínua en formato presencial o e-learning a través de Jaltest University. Cursos adaptados às novas tecnologias de diagnosis y electrónica avanzada para capacitar a mecánicos y gestores de frota.",
+                "ser-m3-t": "ATENCIÓN AL CLIENTE", "ser-m3-d": "Un departamento especializado dedicado exclusivamente a la gestión y satisfação do cliente. Asegura que todas las necessidades específicas del taller sean escuchadas y atendidas con agilidade.",
+                "md-cojali": "Más de 30 años desenvolvendo componentes tecnológicos y sistemas de acoplamento de ventiladores para a indústria global."
+            }
+        };
+
+        function setLanguage(lang) {
+            document.querySelectorAll('.lang-switcher .lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + lang).classList.add('active');
+
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    if (key === "m-modelos-p") {
+                        element.innerHTML = translations[lang][key];
+                    } else {
+                        element.innerText = translations[lang][key];
+                    }
+                }
+            });
+        }
+
+        // MOTOR DE PRESENTACIÓN (SLIDES)
+        let currentSlide = 1;
+        function gotoSlide(n) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.dot-wrapper').forEach(d => d.classList.remove('active'));
+            document.getElementById('slide' + n).classList.add('active');
+            document.querySelectorAll('.dot-wrapper')[n-1].classList.add('active');
+            currentSlide = n;
+            
+            const s1Bg = document.getElementById('slide1-bg');
+            if(n === 1) s1Bg.classList.add('active'); else s1Bg.classList.remove('active');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // ASSINATURAS DE TECLADO (SETAS / ESC)
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight' && currentSlide < 5) gotoSlide(currentSlide + 1);
+            if(e.key === 'ArrowLeft' && currentSlide > 1) gotoSlide(currentSlide - 1);
+            
+            let activeModal = document.querySelector('.modal-overlay.active');
+            if(activeModal && (e.key === 'Escape' || e.key === 'ArrowLeft')) {
+                activeModal.classList.remove('active');
+                if(e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
