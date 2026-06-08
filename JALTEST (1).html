@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -463,8 +463,8 @@
         <div id="slide1-bg" class="active"></div>
         
         <div class="lang-switcher">
-            <button class="lang-btn active" onclick="setLanguage('pt')" id="btn-pt">PT</button>
-            <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+            <button class="lang-btn" onclick="setLanguage('pt')" id="btn-pt">PT</button>
+            <button class="lang-btn active" onclick="setLanguage('en')" id="btn-en">EN</button>
             <button class="lang-btn" onclick="setLanguage('es')" id="btn-es">ES</button>
         </div>
 
@@ -997,6 +997,9 @@
                 }
             });
         }
+
+        // Idioma padrão: Inglês
+        setLanguage('en');
 
         // MOTOR DE PRESENTACIÓN (SLIDES)
         let currentSlide = 1;
